@@ -35,13 +35,9 @@
   ;; - add a function to read and write a CV
   )
 
-
-
 ;;; --- REPL Playground & Examples ---
-;;; Note: doc1 and doc2 needed for all subsequent examples
 (comment
-  (def doc1 (read-eaf "segmentation-anotator-1.eaf"))
-  (def doc2 (read-eaf "segmentation-anotator-2.eaf")))
+  (read-eaf "segmentation-anotator-1.eaf"))
 
 ;;;;; =====================================================================
 ;;;;; # Section 2: Accessing and modifying components of ELAN file
@@ -88,12 +84,13 @@
 
 ;;; --- REPL Playground & Examples --- 
 (comment
-  (header doc1)
-  (media-descriptor doc1)
-  (video-url doc1)
-  (video-rel-url doc1)
-  (video-url (replace-video-url doc1 "new/path/to/video.mp4"))
-  (video-rel-url (replace-video-rel-url doc1 "new/rel/path/to/video.mp4")))
+  (let [doc (read-eaf "segmentation-anotator-1.eaf")]
+    (header doc)
+    (media-descriptor doc)
+    (video-url doc)
+    (video-rel-url doc)
+    (video-url (replace-video-url doc "new/path/to/video.mp4"))
+    (video-rel-url (replace-video-rel-url doc "new/rel/path/to/video.mp4"))))
 
 ;;;;; ## Controlled vocabulary operations
 (def ^:private cvs-path (s/walker #(= (:tag %) :CONTROLLED_VOCABULARY)))
@@ -136,11 +133,12 @@
 
 ;;; --- REPL Playground & Examples --- 
 (comment
-  (cvs doc1)
-  (cv-ids doc1)
-  (cv doc1 (first (cv-ids doc1)))
-  (remove-cv doc1 (first (cv-ids doc1)))
-  (cv-vocab-with-ids doc1 (first (cv-ids doc1))))
+  (let [doc (read-eaf "segmentation-anotator-1.eaf")]
+    (cvs doc)
+    (cv-ids doc)
+    (cv doc (first (cv-ids doc)))
+    (remove-cv doc (first (cv-ids doc)))
+    (cv-vocab-with-ids doc (first (cv-ids doc)))))
 
 ;;;;; ## Linguistic types operations 
 (def ^:private linguistic-types-path (s/walker #(= (:tag %) :LINGUISTIC_TYPE)))
@@ -170,13 +168,14 @@
 
 ;;; --- REPL Playground & Examples --- 
 (comment
-  (linguistic-types doc1)
-  (linguistic-type-ids doc1)
-  (linguistic-type doc1 (first (linguistic-type-ids doc1)))
-  (linguistic-type doc1 (second (linguistic-type-ids doc1)))
-  (linguistic-type doc1 "wrong-type")
-  (linguistic-type-cv doc1 (first (linguistic-type-ids doc1)))
-  (linguistic-type-cv doc1 (second (linguistic-type-ids doc1))))
+  (let [doc (read-eaf "segmentation-anotator-1.eaf")]
+    (linguistic-types doc)
+    (linguistic-type-ids doc)
+    (linguistic-type doc (first (linguistic-type-ids doc)))
+    (linguistic-type doc (second (linguistic-type-ids doc)))
+    (linguistic-type doc "wrong-type")
+    (linguistic-type-cv doc (first (linguistic-type-ids doc)))
+    (linguistic-type-cv doc (second (linguistic-type-ids doc))))
 
 ;;;;; ## Tier operations
 (def ^:private tiers-path [:content s/ALL #(= (:tag %) :TIER)])
@@ -239,23 +238,25 @@
   
 ;;; --- REPL Playground & Examples --- 
 (comment
-  (tiers doc1)
-  (tier-ids doc1)
-  (tier doc1 (first (tier-ids doc1)))
-  (tier doc1 "wrong-id") ;; error
-  (replace-tier doc1
-                (first (tier-ids doc1))
-                (tier doc1 (second (tier-ids doc1))))
-  (tier-ids (replace-tier doc1
-                          (first (tier-ids doc1))
-                          (tier doc1 (second (tier-ids doc1)))))
-  (tier-ids (rename-tier doc1 (second (tier-ids doc1)) "New-tier-name"))
-  (tier-ids (copy-tier-between-files doc1 doc2 (first (tier-ids doc1))))
-  (tier-type doc1 "Funct-seg-p1")
-  (tier-type (change-tier-type doc1 "Funct-seg-p1" "new-type"))
-  (tier-cv doc1 (first (tier-ids doc1)))
-  (tier-cve-id doc1 (second (tier-ids doc1)) "Clear")
-  (tier-cve-id doc1 (first (tier-ids doc1)) "Not present"))
+  (let [doc1 (read-eaf "segmentation-anotator-1.eaf")
+        doc2 (read-eaf "segmentation-anotator-2.eaf")]
+    (tiers doc1)
+    (tier-ids doc1)
+    (tier doc1 (first (tier-ids doc1)))
+    (tier doc1 "wrong-id") ;; error
+    (replace-tier doc1
+                  (first (tier-ids doc1))
+                  (tier doc1 (second (tier-ids doc1))))
+    (tier-ids (replace-tier doc1
+                            (first (tier-ids doc1))
+                            (tier doc1 (second (tier-ids doc1)))))
+    (tier-ids (rename-tier doc1 (second (tier-ids doc1)) "New-tier-name"))
+    (tier-ids (copy-tier-between-files doc1 doc2 (first (tier-ids doc1))))
+    (tier-type doc1 "Funct-seg-p1")
+    (tier-type (change-tier-type doc1 "Funct-seg-p1" "new-type"))
+    (tier-cv doc1 (first (tier-ids doc1)))
+    (tier-cve-id doc1 (second (tier-ids doc1)) "Clear")
+    (tier-cve-id doc1 (first (tier-ids doc1)) "Not present")))
 
 ;;;;; ## Tier annotations operations
 (defn- tier-annotations-path [tier-id] [(tier-path tier-id) :content])
@@ -283,22 +284,24 @@
 
 ;;; --- REPL Playground & Examples --- 
 (comment
-  (tier-annotations doc1 (first (tier-ids doc1)))
-  (let [tier-id (first (tier-ids doc1))]
-    (tier-annotations 
-     (replace-tier-annotations doc1 tier-id
-                          (tier-annotations doc2 (second (tier-ids doc2))))
-     tier-id))
-  (let [tier-id (first (tier-ids doc1))]
-        (tier-annotations 
-         (remove-tier-annotations doc1 tier-id) tier-id))
-  (let [tier-id1 (first (tier-ids doc1))
-            tier-id2 (second (tier-ids doc2))]
-        (tier-annotations (copy-tier-annotations doc2 tier-id2 doc1 tier-id1)
-                     tier-id1))
+  (let [doc1 (read-eaf "segmentation-anotator-1.eaf")
+        doc2 (read-eaf "segmentation-anotator-2.eaf")]
+    (tier-annotations doc1 (first (tier-ids doc1)))
+    (let [tier-id (first (tier-ids doc1))]
+      (tier-annotations 
+       (replace-tier-annotations doc1 tier-id
+                                 (tier-annotations doc2 (second (tier-ids doc2))))
+       tier-id))
+    (let [tier-id (first (tier-ids doc1))]
+      (tier-annotations 
+       (remove-tier-annotations doc1 tier-id) tier-id))
+    (let [tier-id1 (first (tier-ids doc1))
+          tier-id2 (second (tier-ids doc2))]
+      (tier-annotations (copy-tier-annotations doc2 tier-id2 doc1 tier-id1)
+                        tier-id1))
   (let [tier-id (first (tier-ids doc1))
             new-annotation (first (tier-annotations doc2 (second (tier-ids doc2))))]
-        (tier-annotations (add-annotation-to-tier doc1 tier-id new-annotation) tier-id)))
+        (tier-annotations (add-annotation-to-tier doc1 tier-id new-annotation) tier-id))))
 
 ;;;;; ## Annotation operations
 (def ^:private all-annotations-path [tiers-path :content s/ALL map?])
@@ -389,21 +392,22 @@
 
 ;;; --- REPL Playground & Examples --- 
 (comment
-  (annotation-ids doc1)
-  (annotation doc1 "a128")
-  (annotation doc1 "a1111")
-  (annotation (remove-annotation doc1 "a128") "a128")
-  (annotation (replace-annotation-id doc1 "a128" "a1111") "a1111")
-  (annotation-text doc1 "a128")
-  (annotation (replace-annotation-text doc1 "a128" "some new text") "a128")
-  (annotation-start-time-ref doc1 "a128")
-  (annotation-end-time-ref doc1 "a128")
-  (annotation (replace-annotation-start-time-ref doc1 "a128" "ts1111") "a128")
-  (annotation (replace-annotation-end-time-ref doc1 "a128" "ts1111") "a128")
-  (id-to-int "a123")
-  (id-to-int "ts123")
-  (last-annotation-id doc1)
-  (update-annotation-id (last-annotation-id doc1) #(+ 10 %)))
+  (let [doc (read-eaf "segmentation-anotator-1.eaf")]
+    (annotation-ids doc)
+    (annotation doc "a128")
+    (annotation doc "a1111")
+    (annotation (remove-annotation doc "a128") "a128")
+    (annotation (replace-annotation-id doc "a128" "a1111") "a1111")
+    (annotation-text doc "a128")
+    (annotation (replace-annotation-text doc "a128" "some new text") "a128")
+    (annotation-start-time-ref doc "a128")
+    (annotation-end-time-ref doc "a128")
+    (annotation (replace-annotation-start-time-ref doc "a128" "ts1111") "a128")
+    (annotation (replace-annotation-end-time-ref doc "a128" "ts1111") "a128")
+    (id-to-int "a123")
+    (id-to-int "ts123")
+    (last-annotation-id doc)
+    (update-annotation-id (last-annotation-id doc) #(+ 10 %))))
 
 ;;;;; ## Time order operations
 (def ^:private time-order-path [:content s/ALL #(= (:tag %) :TIME_ORDER)])
@@ -429,11 +433,13 @@
 
 ;;; --- REPL Playground & Examples --- 
 (comment
-  (time-order doc1)
-  (time-order (replace-time-order doc1 (time-order doc2)))
-  (time-slots doc1)
-  (time-slots (replace-time-slots doc1 (time-slots doc2)))
-  (time-slot-ids doc1))
+  (let [doc1 (read-eaf "segmentation-anotator-1.eaf")
+        doc2 (read-eaf "segmentation-anotator-2.eaf")]
+    (time-order doc1)
+    (time-order (replace-time-order doc1 (time-order doc2)))
+    (time-slots doc1)
+    (time-slots (replace-time-slots doc1 (time-slots doc2)))
+    (time-slot-ids doc1)))
 
 ;;;;; ## Time slot operations 
 (defn- time-slot-path [time-slot-id] [time-slots-path  (s/selected? :attrs :TIME_SLOT_ID #(= % time-slot-id))])
@@ -480,14 +486,16 @@
 
 ;;; --- REPL Playground & Examples --- 
 (comment
-  (time-slot doc1 "ts244")
-  (time-slot doc2 "ts245")
-  (time-slots (add-time-slot doc1 (time-slot doc2 "ts245")))
-  (time-slots (remove-time-slot doc1 "ts244"))
-  (last-time-slot-id doc1)
-  (last-time-slot-id (remove-time-slot doc1 "ts244"))
-  (update-time-slot-id "ts123" #(* 10 %))
-  (update-time-slot-id "s123" inc))
+  (let [doc1 (read-eaf "segmentation-anotator-1.eaf")
+        doc2 (read-eaf "segmentation-anotator-2.eaf")]
+    (time-slot doc1 "ts244")
+    (time-slot doc2 "ts245")
+    (time-slots (add-time-slot doc1 (time-slot doc2 "ts245")))
+    (time-slots (remove-time-slot doc1 "ts244"))
+    (last-time-slot-id doc1)
+    (last-time-slot-id (remove-time-slot doc1 "ts244"))
+    (update-time-slot-id "ts123" #(* 10 %))
+    (update-time-slot-id "s123" inc)))
 
 ;;;;; =====================================================================
 ;;;;; # Section 3: Converting to and from a dataset 
@@ -548,24 +556,25 @@
 
 ;;; --- REPL Playground & Examples --- 
 (comment
-  (xml-node :ANNOTATION {} "content")
-  (xml-node :ANNOTATION {}
-            (xml-node :ALIGNABLE_ANNOTATION
-                      {:ANNOTATION_ID "a122"
-                       :TIME_SLOT_REF1 "ts233"
-                       :TIME_SLOT_REF2 "ts234"}
-                      (xml-node :ANNOTATION_VALUE {} "oh")))
-  (flatten-annotation (annotation doc1 "a122"))
-  (unflatten-annotation (flatten-annotation (annotation doc1 "a122")))
-  (unflatten-annotation "a122" "ts233" "ts234" (xml-node :ANNOTATION_VALUE {} "oh"))
-  (unflatten-annotation "a122" "ts233" "ts234" "cveid_dbceba0b-0bb1-4c9f-a1e3-ab40bb2deee6" (xml-node :ANNOTATION_VALUE {} "oh"))
-  (tier-to-dataset doc1 (first (tier-ids doc1)))
-  (let [target-tier (first (tier-ids doc1))]
-        (tier-to-xml
-         (tier-to-dataset doc1 target-tier)
-         target-tier
-         (tier-type doc1 target-tier)
-         doc1)))
+  (let [doc (read-eaf "segmentation-anotator-1.eaf")]
+    (xml-node :ANNOTATION {} "content")
+    (xml-node :ANNOTATION {}
+              (xml-node :ALIGNABLE_ANNOTATION
+                        {:ANNOTATION_ID "a122"
+                         :TIME_SLOT_REF1 "ts233"
+                         :TIME_SLOT_REF2 "ts234"}
+                        (xml-node :ANNOTATION_VALUE {} "oh")))
+    (flatten-annotation (annotation doc "a122"))
+    (unflatten-annotation (flatten-annotation (annotation doc "a122")))
+    (unflatten-annotation "a122" "ts233" "ts234" (xml-node :ANNOTATION_VALUE {} "oh"))
+    (unflatten-annotation "a122" "ts233" "ts234" "cveid_dbceba0b-0bb1-4c9f-a1e3-ab40bb2deee6" (xml-node :ANNOTATION_VALUE {} "oh"))
+    (tier-to-dataset doc (first (tier-ids doc)))
+    (let [target-tier (first (tier-ids doc))]
+      (tier-to-xml
+       (tier-to-dataset doc target-tier)
+       target-tier
+       (tier-type doc target-tier)
+       doc))))
 
 ;;;;; ## Converting time order from xml to dataset and back 
 (defn time-order-to-dataset [doc]
@@ -626,16 +635,17 @@
 
 ;;; --- REPL Playground & Examples --- 
 (comment
-  (time-order-to-dataset doc1)
-  (unflatten-time-slot (first (tc/rows (time-order-to-dataset doc1) :as-maps)))
-  (unflatten-time-slot-2 "ts1" 1880)
-  (time-slots
-   (unflatten-and-add-time-slot
-    doc1
-    (update-time-slot-id (last-time-slot-id doc1) inc)
-    180000))
-  (time-order-to-xml (time-order-to-dataset doc1))
-  (tier-to-dataset-with-timestamps doc1 (first (tier-ids doc1))))
+  (let [doc (read-eaf "segmentation-anotator-1.eaf")]
+    (time-order-to-dataset doc)
+    (unflatten-time-slot (first (tc/rows (time-order-to-dataset doc) :as-maps)))
+    (unflatten-time-slot-2 "ts1" 1880)
+    (time-slots
+     (unflatten-and-add-time-slot
+      doc
+      (update-time-slot-id (last-time-slot-id doc) inc)
+      180000))
+    (time-order-to-xml (time-order-to-dataset doc))
+    (tier-to-dataset-with-timestamps doc (first (tier-ids doc)))))
 
 ;;;;; =====================================================================
 ;;;;; # Section 4: Annotation-specific functions 
@@ -707,12 +717,14 @@
 
 ;;; --- REPL Playground & Examples --- 
 (comment
-  (truncate-time 100)
-  (truncate-time 1000000)
-  (same-intervals? 100 1000 200 900 200)
-  (same-intervals? 100 1000 200 900 50)
-  (let [ds (tier-to-dataset-with-timestamps doc1 (first (tier-ids doc1)))]
-    (dataset-annotations-equal? (tc/select-rows ds 1) (tc/select-rows ds 1) 200))
-  (let [ds (tier-to-dataset-with-timestamps doc1 (first (tier-ids doc1)))]
-    (dataset-annotations-equal? (tc/select-rows ds 1) (tc/select-rows ds 0) 200))
-  (tier-agreement doc1 doc2 (first (tier-ids doc1))))
+  (let [doc1 (read-eaf "segmentation-anotator-1.eaf")
+        doc2 (read-eaf "segmentation-anotator-2.eaf")]
+    (truncate-time 100)
+    (truncate-time 1000000)
+    (same-intervals? 100 1000 200 900 200)
+    (same-intervals? 100 1000 200 900 50)
+    (let [ds (tier-to-dataset-with-timestamps doc1 (first (tier-ids doc1)))]
+      (dataset-annotations-equal? (tc/select-rows ds 1) (tc/select-rows ds 1) 200))
+    (let [ds (tier-to-dataset-with-timestamps doc1 (first (tier-ids doc1)))]
+      (dataset-annotations-equal? (tc/select-rows ds 1) (tc/select-rows ds 0) 200))
+    (tier-agreement doc1 doc2 (first (tier-ids doc1)))))
