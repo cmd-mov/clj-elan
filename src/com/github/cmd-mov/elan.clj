@@ -40,12 +40,8 @@
 ;;; --- REPL Playground & Examples ---
 ;;; Note: doc1 and doc2 needed for all subsequent examples
 (comment
-  (def voice-segmentation-dir "data/annotated/1_segmentation/voice/")
-  (defn segmentation-file [annotator team game dir]
-    (letfn [(pad-game [g] (if (>= game 10) (str game) (str "0" game)))]
-      (str dir team "/annotator_" annotator "/segmentation-annotator-" annotator "-team-" team "-g" (pad-game game) ".eaf")))
-  (def doc1 (read-eaf (segmentation-file 1 16 1 voice-segmentation-dir)))
-  (def doc2 (read-eaf (segmentation-file 2 16 1 voice-segmentation-dir))))
+  (def doc1 (read-eaf "segmentation-anotator-1.eaf"))
+  (def doc2 (read-eaf "segmentation-anotator-2.eaf")))
 
 ;;;;; =====================================================================
 ;;;;; # Section 2: Accessing and modifying components of ELAN file

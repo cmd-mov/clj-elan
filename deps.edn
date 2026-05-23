@@ -1,4 +1,4 @@
-{:paths ["src/lib" "src/analysis"]
+{:paths ["src" "resources"]
  :deps {org.clojure/tools.namespace {:mvn/version "1.5.1"}
         org.clojure/data.xml {:mvn/version "0.2.0-alpha8"}
         org.clojure/data.zip {:mvn/version "1.0.0"}
