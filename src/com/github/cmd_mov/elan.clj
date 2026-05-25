@@ -124,12 +124,12 @@
   (add-cv doc-to (cv doc-from cv-id)))
 
 (defn cv-vocab-with-ids [doc cv-id]
-  (letfn [(cve-id-an-content [cv-entry]
+  (letfn [(cve-id-and-content [cv-entry]
             {:cve-id (-> cv-entry :attrs :CVE_ID)
              :content (->> cv-entry :content (filter map?) first :content first)})]
     (->> (cv doc cv-id)
          (s/select (s/walker #(= (:tag %) :CV_ENTRY_ML)))
-         (map cve-id-an-content))))
+         (map cve-id-and-content))))
 
 ;;; --- REPL Playground & Examples --- 
 (comment
