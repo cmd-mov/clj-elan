@@ -23,18 +23,6 @@
   (with-open [out-file (io/writer filename)]
   (xml/emit doc out-file)))
 
-(defn doc-summary
-  "Provides a summary of the document"
-  [doc]
-  ;; Note:
-  ;; - the function that copies a tier should look up the controlled vocabulary in the new document; if it is not associated, it should copy the controlled vocabulary as well; if it exists, it should update the annotations based on the controlled vocabulary in the new document
-  ;; - there should be a function that reorders tier IDs by time stamps, which also updates annotation ids accordingly
-  ;; - there should be a function that orders annotation IDs (maybe; if they are indeed ordered in ELAN) in order of increasing time stamps, per tier
-  ;; - add a function to map over annotations
-  ;; - set dataset name to tier name
-  ;; - add a function to read and write a CV
-  )
-
 ;;; --- REPL Playground & Examples ---
 (comment
   (read-eaf "segmentation-anotator-1.eaf"))
@@ -175,7 +163,7 @@
     (linguistic-type doc (second (linguistic-type-ids doc)))
     (linguistic-type doc "wrong-type")
     (linguistic-type-cv doc (first (linguistic-type-ids doc)))
-    (linguistic-type-cv doc (second (linguistic-type-ids doc))))
+    (linguistic-type-cv doc (second (linguistic-type-ids doc)))))
 
 ;;;;; ## Tier operations
 (def ^:private tiers-path [:content s/ALL #(= (:tag %) :TIER)])
@@ -498,7 +486,17 @@
     (update-time-slot-id "s123" inc)))
 
 ;;;;; =====================================================================
-;;;;; # Section 3: Converting to and from a dataset 
+;;;;; # Section 3: Summary functions (useful in REPL) 
+;;;;; =====================================================================
+
+(defn doc-summary
+  "Provides a summary of the document"
+  [doc]
+  
+  )
+
+;;;;; =====================================================================
+;;;;; # Section 4: Converting to and from a dataset 
 ;;;;; =====================================================================
 (defn xml-node [tag attrs & content]
   (let [clean-content (or content '())]
@@ -648,7 +646,7 @@
     (tier-to-dataset-with-timestamps doc (first (tier-ids doc)))))
 
 ;;;;; =====================================================================
-;;;;; # Section 4: Annotation-specific functions 
+;;;;; # Section 5: Utility functions 
 ;;;;; =====================================================================
 (defn truncate-time [t]
   (if (> t 180000)
@@ -728,3 +726,15 @@
     (let [ds (tier-to-dataset-with-timestamps doc1 (first (tier-ids doc1)))]
       (dataset-annotations-equal? (tc/select-rows ds 1) (tc/select-rows ds 0) 200))
     (tier-agreement doc1 doc2 (first (tier-ids doc1)))))
+
+
+  ;; Note:
+  ;; - the function that copies a tier should look up the controlled vocabulary in the new document; if it is not associated, it should copy the controlled vocabulary as well; if it exists, it should update the annotations based on the controlled vocabulary in the new document
+  ;; - there should be a function that reorders tier IDs by time stamps, which also updates annotation ids accordingly
+  ;; - there should be a function that orders annotation IDs (maybe; if they are indeed ordered in ELAN) in order of increasing time stamps, per tier
+  ;; - add a function to map over annotations
+  ;; - set dataset name to tier name
+  ;; - add a function to read and write a CV
+  ;; - functions to write to nippy and edn
+  ;; - functions to summarize doc/tier/cv
+  ;; - when converting to dataset, set name to tier ID or cv id, etc

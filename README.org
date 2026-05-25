@@ -1,5 +1,4 @@
-#+TITLE:clj-elan: Reading and manipulating ELAN files with Clojure and Noj
-* What is clj-elan?
+* clj-elan
 
 [[https://archive.mpi.nl/tla/elan][ELAN]] is a popular tool for multimodal annotation, used by linguists, psychologists, ethnologists, and others. *clj-elan* is a package for processing ELAN files in Clojure. With clj-elan, you can load an ELAN document, and access, copy and modify all its elements.
 
