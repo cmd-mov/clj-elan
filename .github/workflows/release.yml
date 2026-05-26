@@ -45,12 +45,12 @@ jobs:
           ${{ runner.os }}-clojure-
 
     - name: Build Jar
-      run: clj -T:build jar
+      run: clojure -Sverbose -T:build jar
       env:
         PROJECT_VERSION: ${{ env.VERSION }}
 
     - name: Deploy to Clojars
-      run: clj -T:build deploy
+      run: clojure -T:build deploy
       env:
         PROJECT_VERSION: ${{ env.VERSION }}
         CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
