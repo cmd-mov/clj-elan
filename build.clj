@@ -23,7 +23,8 @@
           :jar-file jar-file}))
 
 (defn deploy [opts]
-  (let [{:keys [class-dir jar-file]} (jar opts)]
-    (dd/deploy {:installer :remote
-                :artifact (b/resolve-path jar-file)
-                :pom-file (b/pom-path {:lib lib :class-dir class-dir})})))
+  (jar opts)
+  (println "Deploying" jar-file "to Clojars...")
+  (dd/deploy {:installer :remote
+              :artifact (b/resolve-path jar-file) 
+              :pom-file (b/pom-path {:lib lib :class-dir class-dir})})) 
